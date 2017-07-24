@@ -1,5 +1,7 @@
 # download and/or read English Premier League data
 
+library(dplyr)
+
 # get the list of files assigned to the selected seasons and divisions
 # returns a list
 seasonFiles <- function(seasons, divisions) {
@@ -14,21 +16,20 @@ seasonFiles <- function(seasons, divisions) {
   l
 }
 
-# read seasons' data from the specified files
-# returns a data frame 
-readSeasons <- function(fileslist) {
+downloadSeasons <- function (seasons, divisions) {
+  files <- seasonFiles(seasons, divisions)
   src <- "http://www.football-data.co.uk/mmz4281/"
-  for (f in fileslist) {
-    if (!file.exists(f))
-      download.file(url = paste(src, gsub("-", "/", f), sep = ""),
-                    destfile = f)
-  }
-  colclasses = c(rep("factor", 4), 
-                   rep("integer", 2),
-                   "factor",
-                   rep("integer", 2),
-                   rep("factor", 2),
-                   rep("integer", 12),
-                   rep("NULL", 50))
-  do.call(rbind, lapply(fileslist, read.csv, colClasses = colclasses))
+  for (f in files)
+    if (!file.exists(f)) download.file(url = paste(src, gsub("-", "/", f), 
+                                                   sep = ""), destfile = f)
+}
+
+# read selected variables from seasons' data
+# returns a data frame 
+readSeasonsData <- function(seasons, divisions, variables) {
+  files <- seasonFiles(seasons, divisions)
+  do.call(rbind, lapply(files,  function(filename) {
+    data <- read.csv(filename)
+    select(data, variables)
+  } ))
 }
