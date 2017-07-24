@@ -5,7 +5,7 @@ library(lubridate)
 
 source("./get_epl_data.r")
 
-#data <- d <- readSeasonsData(2012:2017,c(1,2), c("Div", "Date", "HomeTeam", "AwayTeam", "FTR"))
+#data <- readSeasonsData(2005:2017,c(1,2), c("Div", "Date", "HomeTeam", "AwayTeam", "FTR"))
 
 # convert 'Date' variable to a Date format and add 'year' variable 
 data <- mutate(data, Date = as.Date(as.character(Date), "%d/%m/%Y"),
