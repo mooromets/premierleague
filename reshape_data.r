@@ -8,9 +8,21 @@ source("./get_epl_data.r")
 #data <- readSeasonsData(2005:2017,c(1,2), c("Div", "Date", "HomeTeam", "AwayTeam", "FTR"))
 
 # convert 'Date' variable to a Date format and add 'year' variable 
-data <- mutate(data, Date = as.Date(as.character(Date), "%d/%m/%Y"),
-            year = ifelse(month(Date) > 7, year(Date)+1, year(Date)))
+data <- mutate(data, Date = dmy(Date), year = ifelse(month(Date) > 7, 
+                                                     year(Date)+1, year(Date)))
 
-# add points
-data <- mutate(data, HoPts = ifelse(FTR == 'H', 3, ifelse(FTR == 'D', 1, 0)),
-                    AwPts = ifelse(FTR == 'A', 3, ifelse(FTR == 'D', 1, 0)))
+# make two columns HomeTeam and AwayTeam into single one
+data <- rbind (
+  # Home
+  select(data, c("Div", "Date", "year", "HomeTeam", "FTR")) %>%
+    mutate(field = "H", 
+           FTR = ifelse(FTR == 'H', 'W', ifelse(FTR == 'D', 'D', 'L')),
+           Pts = ifelse(FTR == 'W', 3, ifelse(FTR == 'D', 1, 0)) ) %>%
+    rename (team = HomeTeam),
+  # Away
+  select(data, c("Div", "Date", "year", "AwayTeam", "FTR")) %>%
+    mutate(field = "A", 
+           FTR = ifelse(FTR == 'A', 'W', ifelse(FTR == 'D', 'D', 'L')),
+           Pts = ifelse(FTR == 'W', 3, ifelse(FTR == 'D', 1, 0)) ) %>%
+    rename (team = AwayTeam)
+)
