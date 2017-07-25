@@ -12,7 +12,7 @@ points <- function (data, fromDate, toDate, div, teams) {
 
 #points(data, ymd("04-07-01"), ymd("04-09-01"), "E1", c("Ipswich", "Coventry", "Brighton", "Leeds"))
 
-getNewcomersStats <- function(y) {
+getNewcomersStats <- function(y, data) {
   inter <- intersect(unique(filter(data, Div == "E0", year == y) %>% select (team))$team,
                      unique(filter(data, Div == "E1", year == y-1) %>% select (team))$team)
   stats <- full_join(
