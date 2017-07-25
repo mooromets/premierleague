@@ -3,10 +3,6 @@
 library(dplyr)
 library(lubridate)
 
-source("./get_epl_data.r")
-
-#data <- readSeasonsData(2005:2017,c(1,2), c("Div", "Date", "HomeTeam", "AwayTeam", "FTR"))
-
 # convert 'Date' variable to a Date format and add 'year' variable 
 data <- mutate(data, Date = dmy(Date), year = ifelse(month(Date) > 7, 
                                                      year(Date)+1, year(Date)))
