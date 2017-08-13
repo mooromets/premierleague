@@ -5,7 +5,7 @@ points <- function (data, fromDate, toDate, div, teams) {
   data %>%
     #filter by input params
     filter(Div == div, between(Date, fromDate, toDate), team %in% teams) %>%
-    group_by(team) %>%
+    group_by(team, field) %>%
     summarise(Pts = sum(Pts)) %>%
     arrange(-Pts)
 }
@@ -20,7 +20,7 @@ getNewcomersStats <- function(y, data) {
       points(data, ymd((y-2)*10000 + 0701), ymd((y-1)*10000 + 0701), "E1", inter)),
     as.data.frame(
       points(data, ymd((y-1)*10000 + 0701), ymd((y)*10000 + 0701), "E0", inter)),
-    by = c("team"),
+    by = c("team", "field"),
     suffix = c(".Div2", ".Div1")
   )
   stats["Div2.place"] <- c(1,2,3)

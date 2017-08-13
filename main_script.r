@@ -22,4 +22,10 @@ plot(stats$Div1.year, stats$Pts.Div1)
 library(ggplot2)
 
 g <- ggplot(data = stats, aes(x = Div1.year, y = Pts.Div1, group = Div2.place))
-g + geom_line(aes(color = Div2.place))
+g + geom_line(aes(color = Div2.place)) +
+    facet_grid(field ~ .)
+
+mean(stats[stats$field == 'H', "Pts.Div1"])
+mean(stats[stats$field == 'A', "Pts.Div1"])
+mean(stats[stats$field == 'H' & as.numeric(as.character(stats$Div1.year)) > 2008, "Pts.Div1"])
+mean(stats[stats$field == 'A' & as.numeric(as.character(stats$Div1.year)) > 2008, "Pts.Div1"])
