@@ -6,7 +6,7 @@ points <- function (data, fromDate, toDate, div, teams) {
     #filter by input params
     filter(Div == div, between(Date, fromDate, toDate), team %in% teams) %>%
     group_by(team, field) %>%
-    summarise(Pts = sum(Pts)) %>%
+    summarise(Pts = sum(Pts), games = n()) %>%
     arrange(-Pts)
 }
 
