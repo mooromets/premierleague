@@ -11,16 +11,16 @@ basicDataClean <- function(data) {
   # make two columns HomeTeam and AwayTeam into single one
   rbind (
     # Home
-    select(data, c("Div", "Date", "year", "HomeTeam", "FTR")) %>%
+    select(data, c("Div", "Date", "year", "HomeTeam", "FTR", "AwayTeam")) %>%
       mutate(field = "H", 
              FTR = ifelse(FTR == 'H', 'W', ifelse(FTR == 'D', 'D', 'L')),
              Pts = ifelse(FTR == 'W', 3, ifelse(FTR == 'D', 1, 0)) ) %>%
-      rename (team = HomeTeam),
+      rename (team = HomeTeam, opp = AwayTeam),
     # Away
-    select(data, c("Div", "Date", "year", "AwayTeam", "FTR")) %>%
+    select(data, c("Div", "Date", "year", "AwayTeam", "FTR", "HomeTeam")) %>%
       mutate(field = "A", 
              FTR = ifelse(FTR == 'A', 'W', ifelse(FTR == 'D', 'D', 'L')),
              Pts = ifelse(FTR == 'W', 3, ifelse(FTR == 'D', 1, 0)) ) %>%
-      rename (team = AwayTeam)
+      rename (team = AwayTeam, opp = HomeTeam)
   )
 }
