@@ -11,6 +11,7 @@ PLnewcom <- list(num_games = 38
                  , points_away = 13.7037 # average points, collected away by a newcommer
                 )
 
+#TODO : use metrics.r
 ## Points Per Game in competition
 ppg <- function(data, competition, newcomStats, teams) {
   ppg_res <- full_join(

@@ -1,5 +1,6 @@
 #source("./reshape_data.r")
 
+#TODO : use metrics.r
 # calculate points for the specified teams in between fromDate and toDate
 points <- function (data, fromDate, toDate, div, teams) {
   data %>%
