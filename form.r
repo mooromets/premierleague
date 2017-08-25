@@ -63,7 +63,7 @@ form_ppg <- function(data, num_games, competition, teams) {
                                      Date > competition$fromDate 
                                    & Date < competition$toDate)
                          )[,"team"])
-  competition_state$form <- ppg(data, competition, PLnewcom, all_teams)
+  competition_state$form <- ppg(data, competition, PLnewcom, competition_state$all_teams)
 
   rbind(
     do.call("rbind", lapply(teams, calc_form_ppg, 'A', data, competition, competition_state)),

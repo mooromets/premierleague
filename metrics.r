@@ -18,19 +18,19 @@ rulesEPL <- list(
 
 
 points_cross <- function (data, teams, distance) {
-# calculate points in a long distance
+# calculate points in a long distance (= a cross)
   data %>%
     #filter by input params
     filter(Div == distance$div, 
-           between(Date, distance$period[1], distance$period[1]), 
+           between(Date, distance$period[1], distance$period[2]), 
            team %in% teams) %>%
     group_by(team, field) %>%
     summarise(Pts = sum(Pts), games = n()) %>%
     arrange(-Pts)
 }
 
-points_speed <- function(data, teams, distance, rules) {
-# calculate points per game in a long distance, aka speed = distance/time
+points_cross_speed <- function(data, teams, distance, rules) {
+# calculate points per game (PPG) in a long distance, (= a speed of a cross)
   # get points_cross data
   speed <- full_join(
     as.data.frame(points_cross(data, teams, distance)), # this data.frame 
@@ -60,3 +60,53 @@ points_speed <- function(data, teams, distance, rules) {
 }
 
 #TODO : add points acceleration
+
+points_sprint_relative_speed <- 
+  function(data, num_games, div, toDate, teams, rules) {
+# calculates PPG relatively to other teams' performance (= relative speed)
+  distance <- 
+    list(div = div, period =  c(ymd(paste(c(year(toDate)-1, 
+                                            month(toDate), 
+                                            day(toDate)), collapse = "-"))
+                                , toDate))
+  competition_state <- list()
+  competition_state$num_games <- num_games #either home or away
+  competition_state$all_teams <-
+    as.vector(
+      unique(as.data.frame(data %>% 
+                             filter (Div == distance$div & 
+                                       Date > distance$period[1] 
+                                     & Date < distance$period[2])
+      )[,"team"])
+    )
+  competition_state$form <- 
+    points_cross_speed(data, competition_state$all_teams, distance, rules)
+  
+  # calculate relative speed for a single team
+  one_team_ppg <- function(fld, tm) {
+    oppField <- ifelse(fld == 'A', 'H', 'A')
+    last_n_games <- data %>%
+      filter(field == fld & team == tm & Div == div & Date < toDate) %>%
+      top_n(competition_state$num_games, Date)
+    # calc opposition's performance in last n games
+    form_result <-  
+      left_join(data.frame(team = last_n_games$opp, field = rep(oppField, competition_state$num_games)), 
+                competition_state$form,
+                by = c("team", "field")) %>%
+      full_join(., 
+                last_n_games, 
+                by = c("team" = "opp"), 
+                suffix = c(".opp.form", ".team"))
+    list (team = tm, 
+          field = fld,
+          ppg_rel = mean (form_result$Pts.team * form_result$PPG))
+  }
+
+  # relative speed for a single team HOME and AWAY
+  one_team_ppg_ha <- function(team) {
+    do.call("rbind", lapply(list('A', 'H'), 
+                            one_team_ppg, team))
+  }
+
+  do.call("rbind", lapply(teams, one_team_ppg_ha))
+}
