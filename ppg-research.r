@@ -23,6 +23,7 @@ train_data  <- data %>%
            year == train_set[3] | year == train_set[4] | year == train_set[5] | 
            year == train_set[6] | year == train_set[7])
 
-points_sprint_relative_speed(train_data, form_games_num, divEPL, ymd("2015-08-01"), 
+# !!! using (full) data for calculation features
+points_sprint_relative_speed(data, form_games_num, divEPL, ymd("2015-10-20"), 
                              c("Liverpool", "Chelsea", "Arsenal", "Everton"), 
                              rulesEPL)

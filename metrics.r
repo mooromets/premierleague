@@ -14,6 +14,7 @@ rulesEPL <- list(
   num_games = 38 # 1 season in EPL
   , new_home_pts = 25.07 # average home points in EPL for a newcommer 
   , new_away_pts = 13.70 # average away points in EPL for a newcommer
+  , months = 9 # season length in months
 )
 
 
@@ -85,18 +86,30 @@ points_sprint_relative_speed <-
   # calculate relative speed for a single team
   one_team_ppg <- function(fld, tm) {
     oppField <- ifelse(fld == 'A', 'H', 'A')
+    #last n games must be without gaps (breaks, midseasons)
+    months_for_n_games <- floor(competition_state$num_games / 
+                                  (rules$num_games / 2 / rules$months)) + 1
+    fromDate <- ymd(paste(c(year(toDate), 
+                            month(toDate) - months_for_n_games, 
+                            day(toDate)), collapse = "-"))
     last_n_games <- data %>%
-      filter(field == fld & team == tm & Div == div & Date < toDate) %>%
+      filter(field == fld & team == tm & Div == div & 
+               Date < toDate & Date > fromDate) %>%
       top_n(competition_state$num_games, Date)
-    # calc opposition's performance in last n games
-    form_result <-  
-      left_join(data.frame(team = last_n_games$opp, field = rep(oppField, competition_state$num_games)), 
-                competition_state$form,
-                by = c("team", "field")) %>%
-      full_join(., 
-                last_n_games, 
-                by = c("team" = "opp"), 
-                suffix = c(".opp.form", ".team"))
+    # check if there's enough games to calc relative PPG
+    if (dim(last_n_games)[1] >= competition_state$num_games) {
+      # calc opposition's performance in last n games
+      form_result <-  
+        left_join(data.frame(team = last_n_games$opp, field = rep(oppField, competition_state$num_games)), 
+                  competition_state$form,
+                  by = c("team", "field")) %>%
+        full_join(., 
+                  last_n_games, 
+                  by = c("team" = "opp"), 
+                  suffix = c(".opp.form", ".team"))
+    } else 
+      form_result <- data.frame(Pts.team = NA, PPG = NA)
+    #make a list entry to return
     list (team = tm, 
           field = fld,
           ppg_rel = mean (form_result$Pts.team * form_result$PPG))
