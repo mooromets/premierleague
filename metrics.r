@@ -92,7 +92,7 @@ one_team_ppg <- function(fld, tm, data, distance, competition_state, rules) {
                 suffix = c(".opp.form", ".team"))
   } else 
     form_result <- data.frame(Pts.team = NA, PPG = NA)
-  list (team = tm, 
+  data.frame (team = tm, 
         field = fld,
         ppg_rel = mean (form_result$Pts.team * form_result$PPG))
 }
