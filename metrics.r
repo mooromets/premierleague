@@ -69,11 +69,9 @@ one_team_ppg <- function(fld, tm, data, distance, competition_state, rules) {
   # last n games must be without gaps (breaks or midseasons), so we calculate
   # the earliest day we accept for relative PPG calculation
   months_for_n_games <- floor(competition_state$num_games / 
-                                (rules$num_games / 2 / rules$months)) + 1
-  earliestDate <- ymd(paste(c(year(distance$period[2]), 
-                          month(distance$period[2]) - months_for_n_games, 
-                          day(distance$period[2])), 
-                        collapse = "-"))
+                                (rules$num_games / 2 / rules$months)) + 2 
+                                              # +2 - for unlucky calendars 
+  earliestDate <- distance$period[2] %m-% months(months_for_n_games)
   last_n_games <- data %>%
     filter(field == fld & team == tm & Div == distance$div & Date < distance$period[2] 
            & Date > earliestDate) %>%

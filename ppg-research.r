@@ -2,6 +2,8 @@ source("./get_epl_data.r")
 source("./reshape_data.r")
 source("./metrics.r")
 
+library(ggplot2)
+
 divEPL <- "E0"
 form_games_num <- 5
 
@@ -25,7 +27,8 @@ train_data  <- data %>%
 
 out <- data.frame ()
 
-all_matchdays <- unique(train_data[train_data$Div == divEPL, "Date"]) [1:300]
+all_matchdays <- unique(train_data[train_data$Div == divEPL, "Date"])
+#all_matchdays <- c(ymd("2004-11-06"))
 for (matchday in all_matchdays) {
   #progress 
   print(round(match(matchday, all_matchdays) / length(all_matchdays), 4))
@@ -52,14 +55,18 @@ for (matchday in all_matchdays) {
             by = c("opp" = "team"),
             suffix = c(".team", ".opp"))
   
-  out <- rbind(out, games[,c("year", "FTR", "ppg_rel.team", "ppg_rel.opp")])
+  out <- rbind(out, games[,c("Date", "year", "team", "ppg_rel.team", "opp", "ppg_rel.opp", "FTR")])
 }
 
 clean <- out[complete.cases(out),]
 clean <- clean[clean$ppg_rel.team != 0, ] #dunno what to do with zeros at the moment
 clean <- clean[clean$ppg_rel.opp != 0, ]
-clean$k <- clean$ppg_rel.team/clean$ppg_rel.opp
+#clean$k <- clean$ppg_rel.team/clean$ppg_rel.opp
 
-qplot(clean$k, colour = clean$FTR)
-qplot(clean$k)+facet_grid(. ~ clean$FTR)
+#qplot(clean$k, colour = clean$FTR)
+#qplot(clean$k)+facet_grid(. ~ clean$FTR)
 qplot(clean$ppg_rel.team, clean$ppg_rel.opp, colour = clean$FTR)
+
+p <- ggplot(clean, aes(x = ppg_rel.team, y = ppg_rel.opp)) + geom_point() 
+p + facet_grid(. ~ FTR)
+
