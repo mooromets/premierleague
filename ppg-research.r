@@ -65,8 +65,12 @@ clean <- clean[clean$ppg_rel.opp != 0, ]
 
 #qplot(clean$k, colour = clean$FTR)
 #qplot(clean$k)+facet_grid(. ~ clean$FTR)
-qplot(clean$ppg_rel.team, clean$ppg_rel.opp, colour = clean$FTR)
+qplot(clean$ppg_rel.team, clean$ppg_rel.opp, colour = clean$FTR, alpha=I(0.5))
 
 p <- ggplot(clean, aes(x = ppg_rel.team, y = ppg_rel.opp)) + geom_point() 
 p + facet_grid(. ~ FTR)
 
+ggplot() +
+geom_density(aes(ppg_rel.team), data = clean, colour = "yellow") +
+geom_density(aes(ppg_rel.opp), data = clean, colour = "orange") +
+facet_grid(. ~ FTR)
