@@ -5,7 +5,7 @@ library(lubridate)
 
 basicDataClean <- function(data) {
   # convert 'Date' variable to a Date format and add 'year' variable 
-  data <- mutate(data, Date = dmy(Date), year = ifelse(month(Date) > 7, 
+  data <- dplyr::mutate(data, Date = dmy(Date), year = ifelse(month(Date) > 7, 
                                                        year(Date)+1, year(Date)))
   
   selectBySide <- function (side) {

@@ -15,8 +15,11 @@ test_set <- sample(setdiff(seasons, train_set), 3)
 validation_set <- setdiff(seasons, union(train_set, test_set))
 
 # getting data
+setwd("./data")
 downloadSeasons(2003:2017,1:2)
 data <- readSeasonsData(2003:2017, c(1,2), c("Div", "Date", "HomeTeam", "AwayTeam", "FTR"))
+setwd("..")
+
 data <- basicDataClean(data)
 
 train_data  <- data %>%
@@ -31,7 +34,8 @@ all_matchdays <- unique(train_data[train_data$Div == divEPL, "Date"])
 #all_matchdays <- c(ymd("2004-11-06"))
 for (matchday in all_matchdays) {
   #progress 
-  print(round(match(matchday, all_matchdays) / length(all_matchdays), 4))
+  print( sprintf("%3.1f%%" , match(matchday, all_matchdays) / 
+                   length(all_matchdays) * 100 ) )
   
   matchday <- as.Date(matchday, origin = "1970-01-01")
 
@@ -63,13 +67,8 @@ clean <- clean[clean$ppg_rel.team != 0, ] #dunno what to do with zeros at the mo
 clean <- clean[clean$ppg_rel.opp != 0, ]
 clean$k <- clean$ppg_rel.team/clean$ppg_rel.opp
 
-<<<<<<< HEAD
 qplot(clean$k, colour = clean$FTR)
 ggplot(clean, aes(k)) + geom_histogram()+facet_grid(clean$FTR ~ .)
-=======
-#qplot(clean$k, colour = clean$FTR)
-#qplot(clean$k)+facet_grid(. ~ clean$FTR)
->>>>>>> c08bea0eb5f08d83da17e7cb78d0328c4603adde
 qplot(clean$ppg_rel.team, clean$ppg_rel.opp, colour = clean$FTR, alpha=I(0.5))
 
 p <- ggplot(clean, aes(x = ppg_rel.team, y = ppg_rel.opp)) + geom_point() 
