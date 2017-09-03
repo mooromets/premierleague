@@ -63,8 +63,13 @@ clean <- clean[clean$ppg_rel.team != 0, ] #dunno what to do with zeros at the mo
 clean <- clean[clean$ppg_rel.opp != 0, ]
 clean$k <- clean$ppg_rel.team/clean$ppg_rel.opp
 
+<<<<<<< HEAD
 qplot(clean$k, colour = clean$FTR)
 ggplot(clean, aes(k)) + geom_histogram()+facet_grid(clean$FTR ~ .)
+=======
+#qplot(clean$k, colour = clean$FTR)
+#qplot(clean$k)+facet_grid(. ~ clean$FTR)
+>>>>>>> c08bea0eb5f08d83da17e7cb78d0328c4603adde
 qplot(clean$ppg_rel.team, clean$ppg_rel.opp, colour = clean$FTR, alpha=I(0.5))
 
 p <- ggplot(clean, aes(x = ppg_rel.team, y = ppg_rel.opp)) + geom_point() 
