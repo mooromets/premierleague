@@ -17,16 +17,20 @@ validation_set <- setdiff(seasons, union(train_set, test_set))
 # getting data
 setwd("./data")
 downloadSeasons(2003:2017,1:2)
-data <- readSeasonsData(2003:2017, c(1,2), c("Div", "Date", "HomeTeam", "AwayTeam", "FTR"))
+vars <- c("Div", "Date", "HomeTeam", "AwayTeam", "FTR", "B365H", "B365D", "B365A")
+data <- readSeasonsData(2003:2017, c(1,2), vars)
 setwd("..")
 
-data <- basicDataClean(data)
+data <- basicClean(data)
 
 train_data  <- data %>%
-  #TODO how to do meta programming in R?
   filter(Div == divEPL & year == train_set[1] | year == train_set[2] | 
            year == train_set[3] | year == train_set[4] | year == train_set[5] | 
            year == train_set[6] | year == train_set[7])
+#TODO how to do meta programming in R?
+# template<int N> bool multiIf(const std::vector<int>& vec, int val) {return multiIf<N - 1>(vec, val) | vec[N - 1] == val;}
+# template<> bool multiIf<0>(const std::vector<int>& vec, int val) {return vec[0] == val;}
+# if (multiIf<3>(vec, x)) std::cout << "Meta check - OK\n";  
 
 out <- data.frame ()
 
@@ -78,3 +82,7 @@ ggplot() +
 geom_density(aes(ppg_rel.team), data = clean, colour = "yellow") +
 geom_density(aes(ppg_rel.opp), data = clean, colour = "orange") +
 facet_grid(. ~ FTR)
+
+ggplot()+
+  geom_histogram(aes(odds.played), data = data[data$field == 'H',]) + 
+  facet_grid(. ~ FTR) + xlim(1,5)
