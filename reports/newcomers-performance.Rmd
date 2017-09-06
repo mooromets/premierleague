@@ -1,31 +1,57 @@
-source("./get_epl_data.r")
-source("./newcomers_performance.r")
-source("./reshape_data.r")
+---
+title: "Newcomers' performance"
+author: "Sergey Sambor"
+date: "September 6, 2017"
+output: html_document
+---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
 
+```{r dependencies}
+source("../get_epl_data.r")
+source("../newcomers_performance.r")
+source("../reshape_data.r")
+library(ggplot2)
+```
+
+```{r get data}
+setwd("../data")
 downloadSeasons(2001:2017,1:2)
-
 data <- readSeasonsData(2001:2017, c(1,2), c("Div", "Date", "HomeTeam", "AwayTeam", "FTR"))
+setwd("../reports")
 
-data <- basicDataClean(data)
+data <- basicClean(data, odds = function(x){x})
 
 stats <- do.call("rbind", lapply (2002:2017, getNewcomersStats, data))
 stats$Div2.place <- as.factor(stats$Div2.place)
 stats$Div1.year <- as.factor(stats$Div1.year)
+```
 
+```{r}
 plot(stats$Pts.Div2, stats$Pts.Div1)
-
+```
+```{r}
 plot(stats$Div2.place, stats$Pts.Div1)
-
+```
+```{r}
 plot(stats$Div1.year, stats$Pts.Div1)
+```
 
-library(ggplot2)
-
+```{r}
 g <- ggplot(data = stats, aes(x = Div1.year, y = Pts.Div1, group = Div2.place))
 g + geom_line(aes(color = Div2.place)) +
     facet_grid(field ~ .)
+```
 
+Mean values for H and A
+```{r}
 mean(stats[stats$field == 'H', "Pts.Div1"])
 mean(stats[stats$field == 'A', "Pts.Div1"])
+```
+Mean values for H and A for the last 10 seasons
+```{r}
 mean(stats[stats$field == 'H' & as.numeric(as.character(stats$Div1.year)) > 2008, "Pts.Div1"])
 mean(stats[stats$field == 'A' & as.numeric(as.character(stats$Div1.year)) > 2008, "Pts.Div1"])
+```

@@ -86,3 +86,6 @@ facet_grid(. ~ FTR)
 ggplot()+
   geom_histogram(aes(odds.played), data = data[data$field == 'H',]) + 
   facet_grid(. ~ FTR) + xlim(1,5)
+
+ggplot(aes(odds.played, fill = FTR), data = data[data$field == 'H',])+
+  geom_density(alpha=0.25) + xlim(1,5)

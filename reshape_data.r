@@ -18,16 +18,22 @@ selectSide <- function (side, data) {
     rename_(team = thisTeam, opp = oppTeam)    
 }
 
-basicClean <- function(data) {
+oddsClean <- function(data) {
+  data <- rename(data, odds.H = B365H, odds.D = B365D, odds.A = B365A)
+  #add odds variable that played through
+  nColFTR <- grep("^FTR$", colnames(data))
+  data$odds.played <- apply(data, 1, FUN = 
+                              function(x) as.numeric( x[ paste0("odds.", x[nColFTR]) ] ))
+  data
+}
+
+basicClean <- function(data, odds = oddsClean) {
   data <- mutate(data,
                  Date = dmy(Date), # character to 
                  # year - year of the season's end
                  year = ifelse(month(Date) > 7, year(Date)+1, year(Date))) %>%
-          rename(odds.H = B365H, odds.D = B365D, odds.A = B365A)
-  #add odds variable that played through
-  nColFTR <- grep("^FTR$", colnames(data))
-  data$odds.played <- apply(data, 1, FUN = 
-              function(x) as.numeric( x[ paste0("odds.", x[nColFTR]) ] ))
+          odds()
   # split every obs into two while merging columns HomeTeam and AwayTeam into one
   rbind (selectSide('H', data), selectSide('A', data))
 }
+
