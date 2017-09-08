@@ -18,10 +18,6 @@ selectSide <- function (side, data) {
     rename_(team = thisTeam, opp = oppTeam)    
 }
 
-oddsClean <- function(data) {
-  data
-}
-
 basicClean <- function(data, odds = oddsClean) {
   data <- mutate(data,
                  Date = dmy(Date), # character to 
