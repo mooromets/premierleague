@@ -24,12 +24,7 @@ downloadSeasons <- function (seasons, divisions) {
                                                    sep = ""), destfile = f)
 }
 
-# read selected variables from seasons' data
-# returns a data frame 
-readSeasonsData <- function(seasons, divisions, variables) {
+readSeasonsData <- function(seasons, divisions) {
   files <- seasonFiles(seasons, divisions)
-  do.call(rbind, lapply(files,  function(filename) {
-    data <- read.csv(filename)
-    select(data, variables)
-  } ))
+  do.call(bind_rows, lapply(files,  read.csv))
 }

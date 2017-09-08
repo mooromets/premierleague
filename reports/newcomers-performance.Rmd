@@ -19,7 +19,7 @@ library(ggplot2)
 ```{r get data}
 setwd("../data")
 downloadSeasons(2001:2017,1:2)
-data <- readSeasonsData(2001:2017, c(1,2), c("Div", "Date", "HomeTeam", "AwayTeam", "FTR"))
+data <- readSeasonsData(2001:2017, c(1,2))
 setwd("../reports")
 
 data <- basicClean(data, odds = function(x){x})

@@ -17,8 +17,7 @@ validation_set <- setdiff(seasons, union(train_set, test_set))
 # getting data
 setwd("./data")
 downloadSeasons(2003:2017,1:2)
-vars <- c("Div", "Date", "HomeTeam", "AwayTeam", "FTR", "B365H", "B365D", "B365A")
-data <- readSeasonsData(2003:2017, c(1,2), vars)
+data <- readSeasonsData(2003:2017, c(1,2))
 setwd("..")
 
 data <- basicClean(data)
