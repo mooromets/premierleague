@@ -7,15 +7,25 @@ selectSide <- function (side, data) {
   if (side == 'H') {
     thisTeam <- "HomeTeam"
     oppTeam <- "AwayTeam"
+    oddsAvgThis <- "BbAvH"
+    oddsAvgOpp <- "BbAvA"
+    teamRedC <- "HR"
+    oppRedC <- "AR"
   } else if (side == 'A') {
     thisTeam <- "AwayTeam"
     oppTeam <- "HomeTeam"      
+    oddsAvgThis <- "BbAvA"
+    oddsAvgOpp <- "BbAvH"
+    teamRedC <- "AR"
+    oppRedC <- "HR"
   }
   select(data, everything()) %>%
     mutate(field = side,
            FTR = ifelse(FTR == side, 'W', ifelse(FTR == 'D', 'D', 'L')),
            Pts = ifelse(FTR == 'W', 3, ifelse(FTR == 'D', 1, 0)) ) %>%
-    rename_(team = thisTeam, opp = oppTeam)    
+    rename_(team = thisTeam, opp = oppTeam,
+            teamOddsWinAv = oddsAvgThis, teamOddsOppAv = oddsAvgOpp,
+            teamRC = teamRedC, oppRC = oppRedC)    
 }
 
 basicClean <- function(data) {
