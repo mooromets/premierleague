@@ -33,12 +33,24 @@ cards <- data %>%
   filter (field == 'H')
 
 # introduce advantage and oddsDiff variables
-# oddsDiff - difference in odds for the team who gained advantage
+# oddsDiff - advantage in the odds for the opponent
 cards <- cards %>% 
-  mutate(oddsDiff = ifelse(HR <= AR, BbAvH - BbAvA, BbAvA - BbAvH),
-         advantage = ifelse(HR == AR, FALSE, TRUE)) 
+  mutate(oddsDiff = ifelse(HR >= AR, BbAvA - BbAvH, BbAvH - BbAvA),
+         advantage = ifelse(HR == AR, FALSE, TRUE),
+         FTR = ifelse((FTR == 'D') | (HR >= AR), 
+                      FTR, 
+                      ifelse(FTR == 'W', 'L', 'W'))) %>%
+  filter(!is.na(oddsDiff))
 
-sum(cards$advantage, na.rm = TRUE)
+cards %>% 
+  select(oddsDiff, advantage, FTR) %>%
+  group_by(FTR, advantage) %>%
+  summarise(oddsAvg = mean(oddsDiff), oddsMed = median(oddsDiff))
 ```
 
-
+Density plot
+```{r}
+ggplot(aes(oddsDiff, fill = advantage), data = cards)+
+  geom_density(alpha=0.25) + 
+  facet_grid(. ~ FTR)
+```
