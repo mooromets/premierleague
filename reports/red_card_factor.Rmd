@@ -1,0 +1,44 @@
+---
+title: "Red card factor"
+author: "Sergey Sambor"
+date: "September 9, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+```{r dependencies}
+source("../get_epl_data.r")
+source("../reshape_data.r")
+library(ggplot2)
+```
+
+Get data
+```{r get data}
+setwd("../data")
+downloadSeasons(2007:2017,1)
+data <- readSeasonsData(2007:2017, 1)
+setwd("../reports")
+
+data <- basicClean(data)
+```
+
+Reshape data
+```{r}
+# subset data
+cards <- data %>% 
+  select (FTR, HR, AR, BbAvH, BbAvA, field) %>% 
+  filter (field == 'H')
+
+# introduce advantage and oddsDiff variables
+# oddsDiff - difference in odds for the team who gained advantage
+cards <- cards %>% 
+  mutate(oddsDiff = ifelse(HR <= AR, BbAvH - BbAvA, BbAvA - BbAvH),
+         advantage = ifelse(HR == AR, FALSE, TRUE)) 
+
+sum(cards$advantage, na.rm = TRUE)
+```
+
+
