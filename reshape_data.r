@@ -18,7 +18,7 @@ selectSide <- function (side, data) {
     rename_(team = thisTeam, opp = oppTeam)    
 }
 
-basicClean <- function(data, odds = oddsClean) {
+basicClean <- function(data) {
   data <- mutate(data,
                  Date = dmy(Date), # character to 
                  # year - year of the season's end

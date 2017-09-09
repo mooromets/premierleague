@@ -22,7 +22,7 @@ downloadSeasons(2001:2017,1:2)
 data <- readSeasonsData(2001:2017, c(1,2))
 setwd("../reports")
 
-data <- basicClean(data, odds = function(x){x})
+data <- basicClean(data)
 
 stats <- do.call("rbind", lapply (2002:2017, getNewcomersStats, data))
 stats$Div2.place <- as.factor(stats$Div2.place)
