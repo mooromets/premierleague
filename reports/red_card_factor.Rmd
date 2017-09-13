@@ -64,6 +64,7 @@ rateWI <- cards %>%
             drawn = mean(ifelse(FTR == 'D', 1, 0)),
             lost = mean(ifelse(FTR == 'L', 1, 0)))
 rate <- full_join(rateWO, rateWI, by = "oddsDiffCat", suffix = c(".no_Adv", ".Adv"))
+rate$oddsDiffCat <- as.numeric(as.character(rate$oddsDiffCat)) 
 ```
 
 ```{r}
