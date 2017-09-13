@@ -29,28 +29,55 @@ Reshape data
 ```{r}
 # subset data
 cards <- data %>% 
-  select (FTR, HR, AR, BbAvH, BbAvA, field) %>% 
-  filter (field == 'H')
+  select (FTR, teamRC, oppRC, teamOddsWinAv, teamOddsOppAv)
 
 # introduce advantage and oddsDiff variables
 # oddsDiff - advantage in the odds for the opponent
 cards <- cards %>% 
-  mutate(oddsDiff = ifelse(HR >= AR, BbAvA - BbAvH, BbAvH - BbAvA),
-         advantage = ifelse(HR == AR, FALSE, TRUE),
-         FTR = ifelse((FTR == 'D') | (HR >= AR), 
-                      FTR, 
-                      ifelse(FTR == 'W', 'L', 'W'))) %>%
+  mutate(oddsDiff = teamOddsOppAv - teamOddsWinAv,
+         advantage = ifelse(teamRC > oppRC, FALSE, TRUE)) %>%
   filter(!is.na(oddsDiff))
 
-cards %>% 
-  select(oddsDiff, advantage, FTR) %>%
-  group_by(FTR, advantage) %>%
-  summarise(oddsAvg = mean(oddsDiff), oddsMed = median(oddsDiff))
+#add categories
+cards$oddsDiffCat <- cut(cards$oddsDiff, 
+                         c(rev(- (exp(seq(0.5, 3.5, .5)) - 1)),
+                          (exp(seq(0, 3.5, .5)) - 1)))
 ```
+
+```{r}
+#rate without advantage
+rateWO <- cards %>%
+  filter (advantage == FALSE) %>% 
+  group_by(oddsDiffCat) %>% 
+  summarise(won = mean(ifelse(FTR == 'W', 1, 0)),
+            drawn = mean(ifelse(FTR == 'D', 1, 0)),
+            lost = mean(ifelse(FTR == 'L', 1, 0)))
+#rate within advantage
+rateWI <- cards %>%
+  filter (advantage == TRUE) %>% 
+  group_by(oddsDiffCat) %>% 
+  summarise(won = mean(ifelse(FTR == 'W', 1, 0)),
+            drawn = mean(ifelse(FTR == 'D', 1, 0)),
+            lost = mean(ifelse(FTR == 'L', 1, 0)))
+rate <- full_join(rateWO, rateWI, by = "oddsDiffCat", suffix = c(".no_Adv", ".Adv"))
+rate[is.na(rate)] <- 0
+```
+
+```{r}
+ggplot(data = rate, aes(oddsDiffCat, group = 1)) + 
+  geom_line(aes(y = lost.no_Adv, colour = "lost.no_Adv")) +
+  geom_line(aes(y = won.no_Adv, colour = "won.no_Adv")) +
+  geom_line(aes(y = drawn.no_Adv, colour = "drawn.no_Adv")) +
+  geom_line(aes(y = lost.Adv, colour = "lost.no_Adv")) +
+  geom_line(aes(y = won.Adv, colour = "won.no_Adv")) +
+  geom_line(aes(y = drawn.Adv, colour = "drawn.no_Adv"))
+```
+
+
 
 Density plot
 ```{r}
-ggplot(aes(oddsDiff, fill = advantage), data = cards)+
+ggplot(aes(oddsDiff, fill = advantage), data = cards) +
   geom_density(alpha=0.25) + 
   facet_grid(. ~ FTR)
 ```

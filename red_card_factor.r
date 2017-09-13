@@ -28,4 +28,26 @@ cards %>%
   group_by(FTR, advantage) %>%
   summarise(oddsAvg = mean(oddsDiff), oddsMed = median(oddsDiff))
 
+ggplot(data = rate, aes(oddsDiffCat, group = 1)) + 
+  geom_line(aes(y = lost.no_Adv, colour = "lost.no_Adv")) +
+  geom_line(aes(y = won.no_Adv, colour = "won.no_Adv"))
+
+library("reshape2")
+library("ggplot2")
+
+test_data_long <- melt(rate, id="oddsDiffCat")  # convert to long format
+
+ggplot(data=test_data_long,
+       aes(x=oddsDiffCat, group =1, y=value, colour=variable)) +
+  geom_line()
+
+
+
+ggplot(data = rate, aes(oddsDiffCat, group = 1)) + 
+  geom_line(aes(y = lost.no_Adv, colour = "lost.no_Adv")) +
+  geom_line(aes(y = won.no_Adv, colour = "won.no_Adv")) +
+  geom_line(aes(y = drawn.no_Adv, colour = "drawn.no_Adv")) +
+  geom_line(aes(y = lost.Adv, colour = "lost.Adv")) +
+  geom_line(aes(y = won.Adv, colour = "won.Adv")) +
+  geom_line(aes(y = drawn.Adv, colour = "drawn.Adv"))
 
