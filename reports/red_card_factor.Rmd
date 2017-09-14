@@ -38,8 +38,12 @@ cards <- cards %>%
          advantage = ifelse(teamRC > oppRC, FALSE, TRUE)) %>%
   filter(!is.na(oddsDiff))
 
-expSeq <- c(rev(- (exp(seq(0.3, 3.6, length.out = 10)) - 1)),
-                          (exp(seq(0, 3.6, length.out = 11)) - 1))
+#expSeq <- c(rev(- (exp(seq(0.55, 3.3, length.out = 6)) - 1)), (exp(seq(0, 3.3, length.out = 7)) - 1))
+
+expSeq <- c(rev(- (exp(seq(0.3, 3.4, length.out = 13)) - 1)), (exp(seq(0, 3.4, length.out = 14)) - 1))
+
+
+
 catLabels <- c()
 for (i in 1:(length(expSeq)-1)) catLabels[i] <- round(mean(expSeq[i:(i+1)]),1) 
 
@@ -67,21 +71,27 @@ rate <- full_join(rateWO, rateWI, by = "oddsDiffCat", suffix = c(".no_Adv", ".Ad
 rate$oddsDiffCat <- as.numeric(as.character(rate$oddsDiffCat)) 
 ```
 
-```{r}
-ggplot(data = rate, aes(oddsDiffCat, group = 1)) + 
-  geom_line(aes(y = lost.no_Adv, colour = "lost.no_Adv")) +
-  geom_line(aes(y = won.no_Adv, colour = "won.no_Adv")) +
-  geom_line(aes(y = drawn.no_Adv, colour = "drawn.no_Adv")) +
-  geom_line(aes(y = lost.Adv, colour = "lost.Adv")) +
-  geom_line(aes(y = won.Adv, colour = "won.Adv")) +
-  geom_line(aes(y = drawn.Adv, colour = "drawn.Adv"))
-```
-
-
-
-Density plot
-```{r}
-ggplot(aes(oddsDiff, fill = advantage), data = cards) +
+```{r fig.height=3, echo=FALSE}
+ggplot(aes(oddsDiff), data = cards) +
   geom_density(alpha=0.25) + 
-  facet_grid(. ~ FTR)
+  coord_cartesian(xlim = c(-12, 13))
 ```
+
+```{r echo=FALSE}
+genPlot <- ggplot(data = rate, aes(oddsDiffCat, group = 1)) +
+  coord_cartesian(xlim = c(-12, 13))
+degree <- 5
+curves <- genPlot + 
+  stat_smooth(aes(y = won.no_Adv, colour = "won.no_Adv"),  method = lm, formula = y ~ poly(x, degree), se = FALSE) +
+  stat_smooth(aes(y = drawn.no_Adv, colour = "drawn.no_Adv"),  method = lm, formula = y ~ poly(x, degree), se = FALSE) +
+  stat_smooth(aes(y = won.Adv, colour = "won.Adv"),  method = lm, formula = y ~ poly(x, degree), se = FALSE) +
+  stat_smooth(aes(y = drawn.Adv, colour = "drawn.Adv"),  method = lm, formula = y ~ poly(x, degree), se = FALSE) +
+  scale_color_manual(values = c(won.no_Adv = "#008B00", drawn.no_Adv = "#00008B", 
+                                won.Adv = "#708B00", drawn.Adv = "#70008B")) +
+  theme(legend.position = "bottom")
+
+curves
+
+```
+
+
