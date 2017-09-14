@@ -29,20 +29,18 @@ Reshape data
 ```{r}
 # subset data
 cards <- data %>% 
-  select (FTR, teamRC, oppRC, teamOddsWinAv, teamOddsOppAv)
+  select (FTR, teamRC, oppRC, teamOddsWinAv, teamOddsOppAv, team, opp, field, Date)
 
 # introduce advantage and oddsDiff variables
 # oddsDiff - advantage in the odds for the opponent
 cards <- cards %>% 
   mutate(oddsDiff = teamOddsOppAv - teamOddsWinAv,
-         advantage = ifelse(teamRC > oppRC, FALSE, TRUE)) %>%
+         advantage = ifelse(teamRC > oppRC, TRUE, FALSE)) %>%
   filter(!is.na(oddsDiff))
 
 #expSeq <- c(rev(- (exp(seq(0.55, 3.3, length.out = 6)) - 1)), (exp(seq(0, 3.3, length.out = 7)) - 1))
 
 expSeq <- c(rev(- (exp(seq(0.3, 3.4, length.out = 13)) - 1)), (exp(seq(0, 3.4, length.out = 14)) - 1))
-
-
 
 catLabels <- c()
 for (i in 1:(length(expSeq)-1)) catLabels[i] <- round(mean(expSeq[i:(i+1)]),1) 
@@ -94,4 +92,19 @@ curves
 
 ```
 
+For the main zone, we have delta = 5 in the difference of coefficient. Is that big or little?
+```{r}
+(last_visit <- as.data.frame(cards %>% 
+  filter(team == "Man City", opp == "Liverpool", field == "A") %>% 
+  top_n(1, Date)))
+```
+Last City's visit to Anfield was at `r last_visit$oddsDiff` difference in the coefs. And if they got their player sent off, their chances of winnning the game would become the same as with `r last_visit$oddsDiff` - 5 = `r last_visit$oddsDiff-5` difference in the coefs.
+And it apears that City _never_ played with such disadvantage since the Sheichs takeover. Astonoshing?
+Ok, but somedy played at Anfield with such disadvantage, so if City were 10-men they would get chances of winning away at Liverpool at level of...
+```{r}
+eps <- 1.5
+cards %>% filter(opp == "Liverpool", field=="A", (oddsDiff > last_visit$oddsDiff -5 - eps) & (oddsDiff < last_visit$oddsDiff -5 + eps)) %>% top_n(10, Date)
+```
+
+somewhere in between Soton, Palace and Bournemouth. City without a single player have chances of winning like Crystall Palace, who collected last year almost twice as little point as City did.
 
