@@ -35,14 +35,24 @@ check1415 <- data.frame(team = c("Man City", "Man City", "West Ham", "West Brom"
                         stringsAsFactors = FALSE)
 res1415 <- points_cross (data, teams1415, distance1415) 
 
+distance0 <- list(
+  div = "E0"
+  ,period =  c(ymd("20140801"), ymd("20140802"))
+)
+res0 <- points_cross (data, teams1415, distance0) 
+
+
 test_that("points_cross variables have the same names", {
   expect_equal(attr(res1516, "names"), attr(check1516, "names"))
   expect_equal(attr(res1415, "names"), attr(check1415, "names"))
+  expect_equal(attr(res0, "names"), attr(check1415, "names"))
+  
 })
 
 test_that("points_cross data arranged in the same order", {
   expect_equivalent(check1516, res1516)
   expect_equivalent(check1415, res1415)
+  expect_equal(dim(res0)[1], 0)
 })
 
 res_ppg_1415 <- points_cross_speed(data, teams1415, distance1415, rulesEPL)
