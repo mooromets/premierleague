@@ -1,0 +1,6 @@
+#!/bin/sh
+#
+# Hook script is run after commit
+# The script runs unit tests
+
+Rscript ./tests/run-tests.R
