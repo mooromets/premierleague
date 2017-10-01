@@ -1,2 +1,2 @@
 library(testthat)
-test_file("./metrics.test.R")
+test_file("./tests/metrics.test.R")
