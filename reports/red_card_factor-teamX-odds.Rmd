@@ -1,0 +1,77 @@
+---
+title: "Red card factor"
+author: "Sergey Sambor"
+date: "October 1, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+The distribution of odds for a football team to win a game looks like this
+```{r echo=FALSE}
+source("../get_epl_data.r")
+source("../reshape_data.r")
+library(ggplot2)
+library(plotly)
+setwd("../data")
+downloadSeasons(2007:2017,1)
+data <- readSeasonsData(2007:2017, 1)
+setwd("../reports")
+
+data <- basicClean(data)
+# subset data
+cards <- data %>% 
+  select (FTR, teamRC, oppRC, teamOddsWinAv)
+
+# introduce advantage
+cards <- cards %>% 
+  mutate(advantage = ifelse(teamRC > oppRC, TRUE, FALSE)) %>%
+  filter(!is.na(teamOddsWinAv))
+
+#expSeq <- c(rev(- (exp(seq(0.3, 3.4, length.out = 13)) - 1)), (exp(seq(0, 3.4, length.out = 14)) - 1))
+expSeq <- exp(seq(0, 3.3, length.out = 26))
+
+catLabels <- c()
+for (i in 1:(length(expSeq)-1)) catLabels[i] <- round(mean(expSeq[i:(i+1)]),1) 
+
+#add categories
+cards$oddsDiffCat <- cut(cards$teamOddsWinAv, expSeq, labels = catLabels)
+# summary(cards$oddsDiffCat)
+dens <- ggplot(aes(teamOddsWinAv), data = cards) +
+  geom_density(alpha=0.25) + 
+  coord_cartesian(xlim = c(0, 25))
+plot1 <-  ggplotly(dens)
+plot1
+```
+
+Let's plot two lines: chances of a team to win the game when no red card was given, and when team's got their player sent off, so the opponent had advantage.
+```{r echo=FALSE}
+#rate without advantage
+rateWO <- cards %>%
+  filter (advantage == FALSE) %>% 
+  group_by(oddsDiffCat) %>% 
+  summarise(won = mean(ifelse(FTR == 'W', 1, 0)))
+#rate within advantage
+rateWI <- cards %>%
+  filter (advantage == TRUE) %>% 
+  group_by(oddsDiffCat) %>% 
+  summarise(won = mean(ifelse(FTR == 'W', 1, 0)))
+rate <- full_join(rateWO, rateWI, by = "oddsDiffCat", suffix = c(".no_Adv", ".Adv"))
+rate$oddsDiffCat <- as.numeric(as.character(rate$oddsDiffCat)) 
+
+genPlot <- ggplot(data = rate, aes(oddsDiffCat, group = 1)) +
+  coord_cartesian(xlim = c(0, 7.5)) #+ coord_cartesian(ylim = c(0, 1))
+degree <- 2
+curves <- genPlot + 
+  stat_smooth(aes(y = won.no_Adv, colour = "won.no_Adv"),  method = lm, formula = y ~ poly(x, degree), se = FALSE) +
+#  stat_smooth(aes(y = drawn.no_Adv, colour = "drawn.no_Adv"),  method = lm, formula = y ~ poly(x, degree), se = FALSE) +
+  stat_smooth(aes(y = won.Adv, colour = "won.Adv"),  method = lm, formula = y ~ poly(x, degree), se = FALSE) +
+#  stat_smooth(aes(y = drawn.Adv, colour = "drawn.Adv"),  method = lm, formula = y ~ poly(x, degree), se = FALSE) +
+  scale_color_manual(values = c(won.no_Adv = "#00708B", drawn.no_Adv = "#00008B", 
+                                won.Adv = "#708B00", drawn.Adv = "#70008B")) +
+  theme(legend.position = "bottom")
+
+plot2 <- ggplotly(curves)
+plot2
+```
