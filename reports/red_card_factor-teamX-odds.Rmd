@@ -2,12 +2,16 @@
 title: "Red card factor"
 author: "Sergey Sambor"
 date: "October 1, 2017"
-output: html_document
+output: ioslides_presentation
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 ```
+
+
+## Odd's density plot
+
 The distribution of odds for a football team to win a game looks like this
 ```{r echo=FALSE}
 source("../get_epl_data.r")
@@ -45,8 +49,9 @@ plot1 <-  ggplotly(dens)
 plot1
 ```
 
-Let's plot two lines: chances of a team to win the game when no red card was given, and when team's got their player sent off, so the opponent had advantage.
-```{r echo=FALSE}
+## Curves with and without one-man advantage
++ Let's plot two lines: chances of a team to win the game when no red card was given, and when team's got their player sent off, so the opponent had advantage.
+```{r echo=FALSE, fig.height=4}
 #rate without advantage
 rateWO <- cards %>%
   filter (advantage == FALSE) %>% 
