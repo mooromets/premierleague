@@ -9,7 +9,7 @@ form_games_num <- 5
 
 # sampling
 set.seed(278)
-seasons <- 2005:2017
+seasons <- 2005:2018
 train_set <- sample(seasons, 7)
 test_set <- sample(setdiff(seasons, train_set), 3)
 validation_set <- setdiff(seasons, union(train_set, test_set))

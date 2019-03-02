@@ -6,7 +6,7 @@ MISSED_GAMES <- 3 # a team can miss some due to cups and other circumstances
 #sample 'distance' structure
 distance1516 <- list(
   div = "E0"
-  ,period =  c(ymd("20150801"), ymd("20160801"))
+  ,period =  c(ymd("20150801"), ymd("20180801"))
 )
 
 
