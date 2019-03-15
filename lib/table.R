@@ -141,7 +141,7 @@ nGamesTeamPerformance <- function(N, teamName)
                     startDate = x_st,
                     endDate = x_en)
 
-  x <-bind_rows(apply(df, 1, print_performance, data, ))
+  x <-bind_rows(apply(df, 1, print_performance, data))
   x$game <- c(N:(length(gameDates[,1])))
   x
 }
