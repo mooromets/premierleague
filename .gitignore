@@ -2,3 +2,5 @@
 data/
 .gitignore~
 .Rproj.user
+*.csv
+.RData
