@@ -22,13 +22,23 @@ teamAwayGames <- function(data, teamName, startDate, endDate)
 
 # calculates team's performance and returns single-row data.frame with data:
 #("team", "Games", "W", "D", "L", "F", "A", "Diff" , "Pts", "avg.Scored", "avg.Conceeded", "avg.Points")   
-teamPerformance <- function(data, team, startDate, endDate)
+teamPerformance <- function(team, startDate, endDate, data, side = 'All')
 {
+
+  games_list <- list()
+  if (side == 'All' | side == 'Home')
+    games_list <- teamHomeGames(data, team, startDate, endDate)
+  if (side == 'All' | side == 'Away')
+    games_list <- bind_rows(
+      games_list, 
+      teamAwayGames(data, team, startDate, endDate)
+    )
+  
   # get games
-  games_list <- bind_rows(
-    teamHomeGames(data, team, startDate, endDate)
-    , teamAwayGames(data, team, startDate, endDate)
-  )
+#  games_list <- bind_rows(
+#    teamHomeGames(data, team, startDate, endDate)
+#    , teamAwayGames(data, team, startDate, endDate)
+#  )
   
   #count won-drawn-lost
   res_count <- count(games_list, Res)
@@ -71,7 +81,7 @@ print_performance <- function(team, data)
 {
   startDate <- ymd(team['startDate'])
   endDate <- team['endDate']
-  tmp <- teamPerformance(data, team['team'], startDate, endDate)
+  tmp <- teamPerformance(team['team'], startDate, endDate, data)
   tmp['team'] <- paste0(as.character(team['team']), 
                         " ",  
                         as.character(day(startDate)),
@@ -82,6 +92,32 @@ print_performance <- function(team, data)
                         ".",
                         as.character(month.abb[month(endDate)]))
   tmp
+}
+
+#league table
+# @data - a table with row data
+# @teams - an array of selected teams; NULL means 'all' 
+# @fromDate - the start date; NULL means the first day in the data table
+# @toDate - the end date; NULL means the day after the last in the data table
+# @side - which games to count: 'Home' / 'Away' / 'All'
+league_table <- function(data, teams=NULL, fromDate=NULL, toDate=NULL, side='All')
+{
+  # check input
+  if (is.null(teams))
+    teams = unique(c(as.character(data$HomeTeam), as.character(data$AwayTeam)))
+  if (is.null(fromDate))
+    fromDate = min(data$Date)
+  if (is.null(toDate))
+    toDate = max(data$Date) + 1
+
+  # construct results
+  bind_rows(apply(as.data.frame(teams), 
+                  1, 
+                  teamPerformance, 
+                  fromDate, 
+                  toDate, 
+                  data,
+                  side))
 }
 
 
@@ -105,7 +141,7 @@ nGamesTeamPerformance <- function(N, teamName)
                     startDate = x_st,
                     endDate = x_en)
 
-  x <-bind_rows(apply(df, 1, print_performance, data))
+  x <-bind_rows(apply(df, 1, print_performance, data, ))
   x$game <- c(N:(length(gameDates[,1])))
   x
 }
